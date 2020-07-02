@@ -7,27 +7,29 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/users")
-public class UserController {
+@RequestMapping("/api/users")
+public class UserRestController {
 
     private final UserOperations userOperations;
 
     @Autowired
-    public UserController(UserOperations userOperations) {
+    public UserRestController(UserOperations userOperations) {
         this.userOperations = userOperations;
     }
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    public UserResponse create(SaveUserRequest saveUserRequest){
+    public UserResponse create(@RequestBody SaveUserRequest saveUserRequest){
         return UserResponse.fromUser(userOperations.create(saveUserRequest));
     }
 
     @ResponseStatus(HttpStatus.OK)
-    @PostMapping("/{id}")
+    @GetMapping("/{id}")
     public UserResponse get(@PathVariable UUID id){
         return UserResponse.fromUser(userOperations.getById(id));
     }
@@ -43,5 +45,13 @@ public class UserController {
     @DeleteMapping("/{id}")
     public void delete(@PathVariable UUID id){
         userOperations.deleteById(id);
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping
+    public List<UserResponse> getAll(){
+        return userOperations.getAll().stream()
+                .map(UserResponse::fromUser)
+                .collect(Collectors.toList());
     }
 }

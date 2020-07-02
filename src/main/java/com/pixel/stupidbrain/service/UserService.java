@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -38,26 +39,25 @@ public class UserService implements UserOperations {
     public User create(SaveUserRequest request) {
 
         String nickname = request.getNickname();
-        if (userRepository.existsByNickname(nickname)) {
-            throw new UsernameAlreadyExistsException(nickname);
-        }
+        if (nickname.isEmpty()) throw new FieldIsEmptyException("Username");
+        if (userRepository.existsByNickname(nickname)) throw new UsernameAlreadyExistsException(nickname);
 
         String email = request.getEmail();
-        if (userRepository.existsByEmail(email)) {
-            throw new EmailAlreadyExistsException(email);
-        }
+        if (email.isEmpty()) throw new FieldIsEmptyException("Email");
+        if (userRepository.existsByEmail(email)) throw new EmailAlreadyExistsException(email);
 
-        String login = request.getLogin();
-        if (userRepository.existsByLogin(login)) {
-            throw new LoginAlreadyExistsException(login);
-        }
+        String password = request.getPassword();
+        String rePassword = request.getRePassword();
+        if (password.isEmpty()) throw new FieldIsEmptyException("Password");
+        if (rePassword.isEmpty()) throw new FieldIsEmptyException("RePassword");
+        if (!password.equals(rePassword)) throw new PasswordMismatchException();
 
         User user = new User();
         user.setEmail(email);
-        user.setLogin(login);
         user.setNickname(nickname);
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setPassword(passwordEncoder.encode(password));
         user.setRoles(getRolesByNames(request.getRoles()));
+        user.getRoles().forEach(role -> role.addUser(user));
 
         return userRepository.save(user);
     }
@@ -95,6 +95,11 @@ public class UserService implements UserOperations {
     @Override
     public void deleteById(UUID id) {
         userRepository.deleteById(id);
+    }
+
+    @Override
+    public List<User> getAll() {
+        return userRepository.findAll();
     }
 
     private Set<Role> getRolesByNames(Set<String> roleNames) {

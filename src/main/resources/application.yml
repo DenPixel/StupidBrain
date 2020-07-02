@@ -6,7 +6,7 @@ spring:
 spring.profiles: local-dev
 spring:
   profiles:
-    include: local-postgresql-credentials, debug
+    include: local-postgresql-credentials, debug, mustuche-attribute-dev
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/stupid-brain-db
@@ -27,3 +27,9 @@ spring:
 logging:
   level:
     com.pixel.stupidbrain: debug
+
+---
+spring:
+  profiles: mustuche-attribute-dev
+  mustache:
+    expose-request-attributes: true

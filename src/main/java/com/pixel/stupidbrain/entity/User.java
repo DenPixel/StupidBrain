@@ -7,18 +7,16 @@ import java.util.*;
 
 @Entity
 @Table(name = "users")
-public class User {
+public class User{
 
     @Id
     @GeneratedValue
     private UUID id;
 
+    @NaturalId
     @Column(unique = true, nullable = false)
     private String nickname;
 
-    @NaturalId
-    @Column(unique = true, nullable = false)
-    private String login;
 
     @Column(nullable = false)
     private String password;
@@ -52,14 +50,6 @@ public class User {
 
     public void setNickname(String nickname) {
         this.nickname = nickname;
-    }
-
-    public String getLogin() {
-        return login;
-    }
-
-    public void setLogin(String login) {
-        this.login = login;
     }
 
     public String getPassword() {
@@ -103,13 +93,11 @@ public class User {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return nickname.equals(user.nickname) &&
-                login.equals(user.login) &&
-                email.equals(user.email);
+        return nickname.equals(user.nickname);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(nickname, login, email);
+        return Objects.hash(nickname);
     }
 }

@@ -82,34 +82,25 @@ public class QuestionService implements QuestionOperations {
     }
 
     @Override
-    public List<TrueAnswer> getAllTrueAnswer(UUID id) {
-        Question existingQuestion = questionRepository.findById(id)
-                .orElseThrow(() -> new QuestionNotFoundException(id));
+    public List<TrueAnswer> getAllQuestionsTrueAnswers(UUID idQuestion) {
+        Question existingQuestion = questionRepository.findById(idQuestion)
+                .orElseThrow(() -> new QuestionNotFoundException(idQuestion));
 
         return trueAnswerRepository.findAllByQuestionEquals(existingQuestion);
     }
 
     @Override
-    public List<QuestionResponse> getAllByRatingLessThan(int rating) {
-        List<Question> ratingLess = questionRepository.findAllByRatingLessThan(rating);
-
-        return getQuestionResponses(ratingLess);
+    public List<Question> getAll() {
+        return questionRepository.findAll();
     }
 
     @Override
-    public List<QuestionResponse> getAllByRatingGreaterThan(int rating) {
-        List<Question> ratingGreater = questionRepository.findAllByRatingGreaterThan(rating);
-
-        return getQuestionResponses(ratingGreater);
+    public List<Question> getAllByRatingLessThan(int rating) {
+        return questionRepository.findAllByRatingLessThan(rating);
     }
 
-    private List<QuestionResponse> getQuestionResponses(List<Question> questions) {
-        List<QuestionResponse> questionResponses = new ArrayList<>();
-
-        for (Question question : questions) {
-            questionResponses.add(QuestionResponse.fromQuestion(question));
-        }
-
-        return questionResponses;
+    @Override
+    public List<Question> getAllByRatingGreaterThan(int rating) {
+        return questionRepository.findAllByRatingGreaterThan(rating);
     }
 }

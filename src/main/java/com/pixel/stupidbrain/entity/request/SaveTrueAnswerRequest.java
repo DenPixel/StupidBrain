@@ -1,0 +1,45 @@
+package com.pixel.stupidbrain.entity.request;
+
+import java.util.UUID;
+
+public class SaveTrueAnswerRequest {
+
+    private String answer;
+
+    private String description;
+
+    private UUID question;
+
+    public SaveTrueAnswerRequest() {
+    }
+
+    public SaveTrueAnswerRequest(String answer, String description, UUID question) {
+        this.answer = answer;
+        this.description = description;
+        this.question = question;
+    }
+
+    public String getAnswer() {
+        return answer;
+    }
+
+    public void setAnswer(String answer) {
+        this.answer = answer;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public UUID getQuestion() {
+        return question;
+    }
+
+    public void setQuestion(UUID question) {
+        this.question = question;
+    }
+}

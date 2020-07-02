@@ -3,7 +3,10 @@ package com.pixel.stupidbrain.entity;
 import org.hibernate.annotations.NaturalId;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "roles")
@@ -17,13 +20,13 @@ public class Role {
     @Column(unique = true, nullable = false)
     private String name;
 
-    @ManyToMany(mappedBy = "roles")
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable (
-            name = "Users_roles",
+            name = "users_roles",
             joinColumns = @JoinColumn(name = "role_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    private List<User> users;
+    private final Set<User> users = new HashSet<>();
 
     public Role() {
     }
@@ -44,11 +47,12 @@ public class Role {
         this.name = name;
     }
 
-    public List<User> getUsers() {
+    public Set<User> getUsers() {
         return users;
     }
 
-    public void setUsers(List<User> users) {
-        this.users = users;
+    public void addUser(User user){
+        users.add(user);
     }
+
 }

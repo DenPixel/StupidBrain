@@ -4,12 +4,14 @@ import com.pixel.stupidbrain.entity.Role;
 import com.pixel.stupidbrain.entity.User;
 
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class UserResponse {
-    private String nickname;
 
-    private String login;
+    private UUID id;
+
+    private String nickname;
 
     private String email;
 
@@ -18,9 +20,12 @@ public class UserResponse {
     public UserResponse() {
     }
 
-    public UserResponse(String nickname, String login, String email, Set<String> roles) {
+    public UserResponse(UUID id,
+                        String nickname,
+                        String email,
+                        Set<String> roles) {
+        this.id = id;
         this.nickname = nickname;
-        this.login = login;
         this.email = email;
         this.roles = roles;
     }
@@ -28,9 +33,9 @@ public class UserResponse {
     static public UserResponse fromUser(User user){
         UserResponse userResponse = new UserResponse();
 
+        userResponse.setId(user.getId());
         userResponse.setNickname(user.getNickname());
         userResponse.setEmail(user.getEmail());
-        userResponse.setLogin(user.getLogin());
         Set<String> roles = user.getRoles().stream()
                 .map(Role::getName)
                 .collect(Collectors.toSet());
@@ -39,20 +44,20 @@ public class UserResponse {
         return userResponse;
     }
 
+    public UUID getId() {
+        return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
     public String getNickname() {
         return nickname;
     }
 
     public void setNickname(String nickname) {
         this.nickname = nickname;
-    }
-
-    public String getLogin() {
-        return login;
-    }
-
-    public void setLogin(String login) {
-        this.login = login;
     }
 
     public String getEmail() {

@@ -1,62 +1,54 @@
 package com.pixel.stupidbrain.controller;
 
-import com.pixel.stupidbrain.entity.request.SaveQuestionRequest;
+import com.pixel.stupidbrain.entity.Question;
 import com.pixel.stupidbrain.entity.response.QuestionResponse;
 import com.pixel.stupidbrain.service.QuestionOperations;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
-@RestController
-@RequestMapping("/questions")
+@Controller
 public class QuestionController {
 
     private final QuestionOperations questionOperations;
 
+    @Autowired
     public QuestionController(QuestionOperations questionOperations) {
         this.questionOperations = questionOperations;
     }
 
-    @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping
-    public QuestionResponse create(@RequestBody SaveQuestionRequest request){
-        return QuestionResponse.fromQuestion(questionOperations.create(request));
+
+
+    @GetMapping("/questions")
+    public String getAll(Model model){
+        List<QuestionResponse> questions = getListResponseFromQuestions(questionOperations.getAll());
+
+        model.addAllAttributes(questions);
+        return "questions";
     }
 
-    @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/{id}")
-    public QuestionResponse getById(@PathVariable UUID id){
-        return QuestionResponse.fromQuestion(questionOperations.getById(id));
+    @GetMapping("/questions/{id}")
+    public String getQuestion(Model model, @PathVariable UUID id){
+        Question question = questionOperations.getById(id);
+
+        model.addAttribute("name", question.getName());
+        model.addAttribute("description", question.getDescription());
+        model.addAttribute("rating", question.getRating());
+
+        return "question";
     }
 
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PutMapping("/{id}")
-    public void update(@PathVariable UUID id,
-                       @RequestBody SaveQuestionRequest request){
-        questionOperations.update(id, request);
-    }
-
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    @DeleteMapping("/{id}")
-    public void deleteById(@PathVariable UUID id){
-        questionOperations.deleteById(id);
-    }
-
-    @ResponseStatus(HttpStatus.OK)
-    @GetMapping
-    public List<QuestionResponse> getAllByRatingLessThan(
-            @RequestParam(name = "rating-less") int ratingLess
-    ){
-        return questionOperations.getAllByRatingLessThan(ratingLess);
-    }
-
-    @ResponseStatus(HttpStatus.OK)
-    @GetMapping
-    public List<QuestionResponse> getAllByRatingGreaterThan(
-            @RequestParam(name = "rating-greater") int ratingGreater
-    ){
-        return questionOperations.getAllByRatingGreaterThan(ratingGreater);
+    private List<QuestionResponse> getListResponseFromQuestions(Collection<Question> questions){
+        return questions.stream()
+                .map(QuestionResponse::fromQuestion)
+                .collect(Collectors.toList());
     }
 }
