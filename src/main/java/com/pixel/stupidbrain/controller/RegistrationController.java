@@ -8,9 +8,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @Controller
+@RequestMapping("/registration")
 public class RegistrationController {
 
     private final UserOperations userOperations;
@@ -19,30 +21,23 @@ public class RegistrationController {
         this.userOperations = userOperations;
     }
 
+    @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/registration")
     public String registration(){
         return "registration";
     }
 
+    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping("/registration")
     public String createUser(Model model, SaveUserRequest saveUserRequest) {
-        String message = null;
-
         try {
             saveUserRequest.addRole("USER");
             userOperations.create(saveUserRequest);
         }catch (StupidBrainException e){
-            message = e.getReason();
-        }
-
-        if (message != null) {
-            model.addAttribute("message", message);
+            model.addAttribute("message", e.getReason());
             return "registration";
         }
-        
+
         return "login";
     }
-
 }

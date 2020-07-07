@@ -1,20 +1,24 @@
 package com.pixel.stupidbrain.service;
 
-import com.pixel.stupidbrain.entity.User;
 import com.pixel.stupidbrain.entity.request.SaveUserRequest;
+import com.pixel.stupidbrain.entity.response.UserResponse;
 
 import java.util.List;
 import java.util.UUID;
 
 public interface UserOperations {
 
-    User create(SaveUserRequest request);
+    UserResponse create(SaveUserRequest request);
 
-    User getById(UUID id);
+    UserResponse getById(UUID id);
 
     void update(UUID id, SaveUserRequest request);
 
     void deleteById(UUID id);
 
-    List<User> getAll();
+    List<UserResponse> getAll();
+
+    boolean existByUsername(String username);
+
+    UserResponse getByUsername(String username);
 }

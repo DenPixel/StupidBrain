@@ -3,38 +3,23 @@ package com.pixel.stupidbrain.entity.response;
 import com.pixel.stupidbrain.entity.Role;
 import com.pixel.stupidbrain.entity.User;
 
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class UserResponse {
-
     private UUID id;
 
-    private String nickname;
+    private String username;
 
     private String email;
 
     private Set<String> roles;
 
-    public UserResponse() {
-    }
-
-    public UserResponse(UUID id,
-                        String nickname,
-                        String email,
-                        Set<String> roles) {
-        this.id = id;
-        this.nickname = nickname;
-        this.email = email;
-        this.roles = roles;
-    }
-
     static public UserResponse fromUser(User user){
         UserResponse userResponse = new UserResponse();
 
         userResponse.setId(user.getId());
-        userResponse.setNickname(user.getNickname());
+        userResponse.setUsername(user.getUsername());
         userResponse.setEmail(user.getEmail());
         Set<String> roles = user.getRoles().stream()
                 .map(Role::getName)
@@ -42,6 +27,12 @@ public class UserResponse {
         userResponse.setRoles(roles);
 
         return userResponse;
+    }
+
+    static public List<UserResponse> fromUsers(Collection<User> users){
+        return users.stream()
+                .map(UserResponse::fromUser)
+                .collect(Collectors.toList());
     }
 
     public UUID getId() {
@@ -52,12 +43,12 @@ public class UserResponse {
         this.id = id;
     }
 
-    public String getNickname() {
-        return nickname;
+    public String getUsername() {
+        return username;
     }
 
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getEmail() {
@@ -74,5 +65,19 @@ public class UserResponse {
 
     public void setRoles(Set<String> roles) {
         this.roles = roles;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        UserResponse that = (UserResponse) o;
+        return username.equals(that.username) &&
+                email.equals(that.email);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(username, email);
     }
 }

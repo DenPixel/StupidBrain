@@ -1,0 +1,25 @@
+version: '3'
+services:
+  database:
+    image: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: stupid-brain-db
+    volumes:
+      - database-data:/home/pixel/db/
+    ports:
+      - 5432:5432
+
+  stupidbrain:
+    image: stupidbrain:0.5.0.ALFA
+    environment:
+      STUPID_BRAIN_DB: database
+    ports:
+      - 8080:8080
+    depends_on:
+      - database
+
+volumes:
+  database-data:
+    driver: local

@@ -25,6 +25,9 @@ public class UsersAnswer {
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     private User user;
 
+    public UsersAnswer() {
+    }
+
     public UUID getId() {
         return id;
     }

@@ -20,7 +20,7 @@ public class Role {
     @Column(unique = true, nullable = false)
     private String name;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany
     @JoinTable (
             name = "users_roles",
             joinColumns = @JoinColumn(name = "role_id"),

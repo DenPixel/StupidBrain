@@ -1,12 +1,11 @@
 package com.pixel.stupidbrain.service;
 
 import com.pixel.stupidbrain.entity.Question;
-import com.pixel.stupidbrain.entity.TrueAnswer;
 import com.pixel.stupidbrain.entity.User;
 import com.pixel.stupidbrain.entity.request.SaveQuestionRequest;
 import com.pixel.stupidbrain.entity.response.QuestionResponse;
-import com.pixel.stupidbrain.exception.QuestionNotFoundException;
-import com.pixel.stupidbrain.exception.UserNotFoundException;
+import com.pixel.stupidbrain.entity.response.TrueAnswerResponse;
+import com.pixel.stupidbrain.exception.*;
 import com.pixel.stupidbrain.repository.QuestionRepository;
 import com.pixel.stupidbrain.repository.TrueAnswerRepository;
 import com.pixel.stupidbrain.repository.UserRepository;
@@ -14,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -40,67 +38,104 @@ public class QuestionService implements QuestionOperations {
     }
 
     @Override
-    public Question create(SaveQuestionRequest request) {
+    public QuestionResponse create(SaveQuestionRequest request) {
+        if (request == null) throw new RequestIsEmptyException();
 
         Question question = new Question();
-        question.setName(request.getName());
-        question.setDescription(request.getDescription());
-        User user = userRepository.findById(request.getUser())
-                .orElseThrow(() -> new UserNotFoundException(request.getUser()));
+
+        String name = request.getName();
+        String description = request.getDescription();
+        if (name == null || name.isEmpty()) throw new FieldIsEmptyException("Name");
+        if (description == null || description.isEmpty()) throw new FieldIsEmptyException("Description");
+
+        question.setName(name);
+        question.setDescription(description);
+
+        UUID requestUser = request.getUser();
+        if (requestUser == null) throw new FieldIsEmptyException("User");
+
+        User user = userRepository.findById(
+                requestUser)
+                .orElseThrow(() -> new UserNotFoundException(requestUser));
+
         question.setUser(user);
-        question.setTrueAnswers(request.getTrueAnswers());
         question.setRating(DEFAULT_RATING);
 
-        return questionRepository.save(question);
+        return QuestionResponse.fromQuestion(questionRepository.save(question));
     }
 
     @Override
-    public Question getById(UUID id) {
+    public QuestionResponse getById(UUID id) {
+        if (id == null) throw new FieldIsEmptyException("ID");
 
-        return questionRepository.findById(id)
-                .orElseThrow(() -> new QuestionNotFoundException(id));
+        return QuestionResponse.fromQuestion(questionRepository.findById(id)
+                .orElseThrow(() -> new QuestionNotFoundException(id)));
     }
 
     @Override
     public void update(UUID id, SaveQuestionRequest request) {
+        if (id == null) throw new FieldIsEmptyException("ID");
+        if (request == null) throw new RequestIsEmptyException();
+
+        String name = request.getName();
+        String description = request.getDescription();
+        if (name == null || name.isEmpty()) throw new FieldIsEmptyException("Name");
+        if (description == null || description.isEmpty()) throw new FieldIsEmptyException("Description");
+
         Question existingQuestion = questionRepository.findById(id)
                 .orElseThrow(() -> new QuestionNotFoundException(id));
 
-        existingQuestion.setName(request.getName());
-        existingQuestion.setDescription(request.getDescription());
-        User user = userRepository.findById(request.getUser())
-                .orElseThrow(() -> new UserNotFoundException(request.getUser()));
-        existingQuestion.setUser(user);
-        existingQuestion.setTrueAnswers(request.getTrueAnswers());
+        existingQuestion.setName(name);
+        existingQuestion.setDescription(description);
 
         questionRepository.save(existingQuestion);
     }
 
     @Override
+    public void updateRating(UUID id, int rating) {
+        if (id == null) throw new FieldIsEmptyException("ID");
+
+        Question question = questionRepository.findById(id)
+                .orElseThrow(() -> new QuestionNotFoundException(id));
+        question.setRating(rating);
+        questionRepository.save(question);
+    }
+
+    @Override
     public void deleteById(UUID id) {
-        questionRepository.deleteById(id);
+        if (id == null) throw new FieldIsEmptyException("ID");
+
+        Question question = questionRepository.findById(id)
+                .orElseThrow(() -> new QuestionNotFoundException(id));
+
+        questionRepository.deleteById(question.getId());
     }
 
     @Override
-    public List<TrueAnswer> getAllQuestionsTrueAnswers(UUID idQuestion) {
-        Question existingQuestion = questionRepository.findById(idQuestion)
-                .orElseThrow(() -> new QuestionNotFoundException(idQuestion));
+    public List<TrueAnswerResponse> getAllTrueAnswers(UUID id) {
+        if (id == null) throw new FieldIsEmptyException("ID");
 
-        return trueAnswerRepository.findAllByQuestionEquals(existingQuestion);
+        Question existingQuestion = questionRepository.findById(id)
+                .orElseThrow(() -> new QuestionNotFoundException(id));
+
+        return TrueAnswerResponse
+                .fromTrueAnswers(
+                        trueAnswerRepository
+                                .findAllByQuestionEquals(existingQuestion));
     }
 
     @Override
-    public List<Question> getAll() {
-        return questionRepository.findAll();
+    public List<QuestionResponse> getAll() {
+        return QuestionResponse.fromQuestions(questionRepository.findAll());
     }
 
     @Override
-    public List<Question> getAllByRatingLessThan(int rating) {
-        return questionRepository.findAllByRatingLessThan(rating);
+    public List<QuestionResponse> getAllByRatingLessThan(int rating) {
+        return QuestionResponse.fromQuestions(questionRepository.findAllByRatingLessThan(rating));
     }
 
     @Override
-    public List<Question> getAllByRatingGreaterThan(int rating) {
-        return questionRepository.findAllByRatingGreaterThan(rating);
+    public List<QuestionResponse> getAllByRatingGreaterThan(int rating) {
+        return QuestionResponse.fromQuestions(questionRepository.findAllByRatingGreaterThan(rating));
     }
 }

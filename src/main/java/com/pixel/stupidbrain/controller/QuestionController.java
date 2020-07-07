@@ -1,54 +1,95 @@
 package com.pixel.stupidbrain.controller;
 
-import com.pixel.stupidbrain.entity.Question;
+import com.pixel.stupidbrain.entity.request.SaveQuestionRequest;
 import com.pixel.stupidbrain.entity.response.QuestionResponse;
+import com.pixel.stupidbrain.entity.response.UserResponse;
+import com.pixel.stupidbrain.exception.StupidBrainException;
 import com.pixel.stupidbrain.service.QuestionOperations;
+import com.pixel.stupidbrain.service.TrueAnswerOperations;
+import com.pixel.stupidbrain.service.UserOperations;
+import com.pixel.stupidbrain.service.UsersAnswerOperations;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Controller
+@RequestMapping("/questions")
 public class QuestionController {
 
     private final QuestionOperations questionOperations;
+    private final TrueAnswerOperations trueAnswerOperations;
+    private final UserOperations userOperations;
+    private final UsersAnswerOperations usersAnswerOperations;
 
     @Autowired
-    public QuestionController(QuestionOperations questionOperations) {
+    public QuestionController(QuestionOperations questionOperations,
+                              TrueAnswerOperations trueAnswerOperations,
+                              UserOperations userOperations,
+                              UsersAnswerOperations usersAnswerOperations) {
         this.questionOperations = questionOperations;
+        this.trueAnswerOperations = trueAnswerOperations;
+        this.userOperations = userOperations;
+        this.usersAnswerOperations = usersAnswerOperations;
     }
 
-
-
-    @GetMapping("/questions")
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
     public String getAll(Model model){
-        List<QuestionResponse> questions = getListResponseFromQuestions(questionOperations.getAll());
+        List<QuestionResponse>  questions = questionOperations.getAll();
 
-        model.addAllAttributes(questions);
+        model.addAllAttributes(Map.of("questionsList", questions));
+
         return "questions";
     }
 
-    @GetMapping("/questions/{id}")
-    public String getQuestion(Model model, @PathVariable UUID id){
-        Question question = questionOperations.getById(id);
+    @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public String getQuestion(@AuthenticationPrincipal User user,
+                              Model model,
+                              @PathVariable UUID id){
+        QuestionResponse question = null;
 
-        model.addAttribute("name", question.getName());
-        model.addAttribute("description", question.getDescription());
-        model.addAttribute("rating", question.getRating());
+        try {
+            question = questionOperations.getById(id);
+        }catch (StupidBrainException e){
+            model.addAttribute("message", e.getReason());
+        }
+
+        if (question != null) {
+
+            model.addAttribute("usersAnswers", usersAnswerOperations.getAllByQuestionId(id));
+            model.addAttribute("trueAnswers", trueAnswerOperations.getAllByQuestionId(id));
+            model.addAttribute("user", userOperations.getByUsername(user.getUsername()));
+            model.addAttribute("question", question);
+        }
 
         return "question";
     }
 
-    private List<QuestionResponse> getListResponseFromQuestions(Collection<Question> questions){
-        return questions.stream()
-                .map(QuestionResponse::fromQuestion)
-                .collect(Collectors.toList());
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public String createQuestion(@AuthenticationPrincipal User user,
+                                 SaveQuestionRequest request,
+                                 Model model){
+        UserResponse userResponse = userOperations.getByUsername(user.getUsername());
+        request.setUser(userResponse.getId());
+        QuestionResponse questionResponse;
+
+        try {
+            questionResponse = questionOperations.create(request);
+        } catch (StupidBrainException e){
+            model.addAttribute("message", e.getReason());
+            return getAll(model);
+        }
+
+        return "redirect:/questions/" + questionResponse.getId();
     }
 }

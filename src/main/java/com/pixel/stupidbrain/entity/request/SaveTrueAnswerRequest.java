@@ -3,21 +3,11 @@ package com.pixel.stupidbrain.entity.request;
 import java.util.UUID;
 
 public class SaveTrueAnswerRequest {
-
     private String answer;
 
     private String description;
 
     private UUID question;
-
-    public SaveTrueAnswerRequest() {
-    }
-
-    public SaveTrueAnswerRequest(String answer, String description, UUID question) {
-        this.answer = answer;
-        this.description = description;
-        this.question = question;
-    }
 
     public String getAnswer() {
         return answer;

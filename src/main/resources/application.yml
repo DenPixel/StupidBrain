@@ -6,10 +6,10 @@ spring:
 spring.profiles: local-dev
 spring:
   profiles:
-    include: local-postgresql-credentials, debug, mustuche-attribute-dev
+    include: local-postgresql-credentials, debug, freemarker-dev
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/stupid-brain-db
+    url: jdbc:postgresql://${STUPID_BRAIN_DB:localhost}:5432/stupid-brain-db
   jpa:
     hibernate:
       ddl-auto: update
@@ -30,6 +30,7 @@ logging:
 
 ---
 spring:
-  profiles: mustuche-attribute-dev
-  mustache:
+  profiles: freemarker-dev
+  freemarker:
     expose-request-attributes: true
+    suffix: .ftl

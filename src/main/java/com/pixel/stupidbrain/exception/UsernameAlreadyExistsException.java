@@ -4,7 +4,7 @@ import org.springframework.http.HttpStatus;
 
 public class UsernameAlreadyExistsException extends StupidBrainException {
 
-    public UsernameAlreadyExistsException(String nickname) {
-        super(HttpStatus.BAD_REQUEST, "Username " + nickname + " already exists");
+    public UsernameAlreadyExistsException(String username) {
+        super(HttpStatus.BAD_REQUEST, "Username " + username + " already exists");
     }
 }

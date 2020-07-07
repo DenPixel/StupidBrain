@@ -4,8 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class SaveUserRequest {
-
-    private String nickname;
+    private String username;
 
     private String password;
 
@@ -15,29 +14,12 @@ public class SaveUserRequest {
 
     private Set<String> roles = new HashSet<>();
 
-    public SaveUserRequest() {
+    public String getUsername() {
+        return username;
     }
 
-
-    public SaveUserRequest(String nickname,
-                           String login,
-                           String password,
-                           String rePassword,
-                           String email,
-                           Set<String> roles) {
-        this.nickname = nickname;
-        this.password = password;
-        this.rePassword = rePassword;
-        this.email = email;
-        this.roles = roles;
-    }
-
-    public String getNickname() {
-        return nickname;
-    }
-
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getPassword() {

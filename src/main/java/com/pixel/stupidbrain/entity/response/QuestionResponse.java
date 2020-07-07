@@ -2,10 +2,12 @@ package com.pixel.stupidbrain.entity.response;
 
 import com.pixel.stupidbrain.entity.Question;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class QuestionResponse {
-
     private UUID id;
 
     private String name;
@@ -14,15 +16,7 @@ public class QuestionResponse {
 
     private int rating;
 
-    public QuestionResponse() {
-    }
-
-    public QuestionResponse(UUID id, String name, String description, int rating) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.rating = rating;
-    }
+    private UUID user;
 
     static public QuestionResponse fromQuestion(Question question){
         QuestionResponse questionResponse = new QuestionResponse();
@@ -31,8 +25,15 @@ public class QuestionResponse {
         questionResponse.setName(question.getName());
         questionResponse.setDescription(question.getDescription());
         questionResponse.setRating(question.getRating());
+        questionResponse.setUser(question.getUser().getId());
 
         return questionResponse;
+    }
+
+    static public List<QuestionResponse> fromQuestions(Collection<Question> questions){
+        return questions.stream()
+                .map(QuestionResponse::fromQuestion)
+                .collect(Collectors.toList());
     }
 
     public UUID getId() {
@@ -65,5 +66,13 @@ public class QuestionResponse {
 
     public void setRating(int rating) {
         this.rating = rating;
+    }
+
+    public UUID getUser() {
+        return user;
+    }
+
+    public void setUser(UUID user) {
+        this.user = user;
     }
 }

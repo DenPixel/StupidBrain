@@ -1,9 +1,10 @@
 package com.pixel.stupidbrain.entity;
 
-import org.hibernate.annotations.NaturalId;
-
 import javax.persistence.*;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Table(name = "users")
@@ -13,10 +14,8 @@ public class User{
     @GeneratedValue
     private UUID id;
 
-    @NaturalId
     @Column(unique = true, nullable = false)
-    private String nickname;
-
+    private String username;
 
     @Column(nullable = false)
     private String password;
@@ -24,13 +23,13 @@ public class User{
     @Column(unique = true, nullable = false)
     private String email;
 
-    @ManyToMany(mappedBy = "users")
+    @ManyToMany(mappedBy = "users", fetch = FetchType.EAGER)
     private Set<Role> roles;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private final Set<Question> questions = new HashSet<>();
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private final Set<UsersAnswer> answers = new HashSet<>();
 
     public User() {
@@ -44,12 +43,12 @@ public class User{
         this.id = id;
     }
 
-    public String getNickname() {
-        return nickname;
+    public String getUsername() {
+        return username;
     }
 
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
+    public void setUsername(String nickname) {
+        this.username = nickname;
     }
 
     public String getPassword() {
@@ -93,11 +92,11 @@ public class User{
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return nickname.equals(user.nickname);
+        return username.equals(user.username);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(nickname);
+        return Objects.hash(username);
     }
 }

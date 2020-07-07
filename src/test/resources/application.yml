@@ -1,0 +1,25 @@
+spring:
+  profiles:
+    active: local-dev
+
+---
+spring.profiles: local-dev
+spring:
+  profiles:
+    include: local-postgresql-credentials
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/stupid-brain-test-db
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+---
+spring:
+  profiles: local-postgresql-credentials
+  datasource:
+    username: test
+    password: test
+
+
+

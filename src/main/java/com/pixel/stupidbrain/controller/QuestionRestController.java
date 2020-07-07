@@ -1,17 +1,14 @@
 package com.pixel.stupidbrain.controller;
 
-import com.pixel.stupidbrain.entity.Question;
-import com.pixel.stupidbrain.entity.TrueAnswer;
 import com.pixel.stupidbrain.entity.request.SaveQuestionRequest;
 import com.pixel.stupidbrain.entity.response.QuestionResponse;
+import com.pixel.stupidbrain.entity.response.TrueAnswerResponse;
 import com.pixel.stupidbrain.service.QuestionOperations;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/questions")
@@ -23,61 +20,54 @@ public class QuestionRestController {
         this.questionOperations = questionOperations;
     }
 
-    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public QuestionResponse create(@RequestBody SaveQuestionRequest request){
-        return QuestionResponse.fromQuestion(questionOperations.create(request));
+        return questionOperations.create(request);
     }
 
-    @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
     public QuestionResponse getById(@PathVariable UUID id){
-        return QuestionResponse.fromQuestion(questionOperations.getById(id));
+        return questionOperations.getById(id);
     }
 
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void update(@PathVariable UUID id,
                        @RequestBody SaveQuestionRequest request){
         questionOperations.update(id, request);
     }
 
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteById(@PathVariable UUID id){
         questionOperations.deleteById(id);
     }
 
-    @ResponseStatus(HttpStatus.OK)
     @GetMapping(params = "rating-less")
+    @ResponseStatus(HttpStatus.OK)
     public List<QuestionResponse> getAllByRatingLessThan(
             @RequestParam(name = "rating-less") int ratingLess){
-        return getListResponseFromQuestions(questionOperations.getAllByRatingLessThan(ratingLess));
+        return questionOperations.getAllByRatingLessThan(ratingLess);
     }
 
-    @ResponseStatus(HttpStatus.OK)
     @GetMapping(params = "rating-greater")
+    @ResponseStatus(HttpStatus.OK)
     public List<QuestionResponse> getAllByRatingGreaterThan(
             @RequestParam(name = "rating-greater") int ratingGreater){
-        return getListResponseFromQuestions(questionOperations.getAllByRatingGreaterThan(ratingGreater));
+        return questionOperations.getAllByRatingGreaterThan(ratingGreater);
     }
 
-    @ResponseStatus(HttpStatus.OK)
     @GetMapping
-    public List<QuestionResponse> getAllQuestion(){
-        return getListResponseFromQuestions(questionOperations.getAll());
-    }
-
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/{id}/answers")
-    public List<TrueAnswer> getTrueAnswers(@PathVariable UUID id){
-        return questionOperations.getAllQuestionsTrueAnswers(id);
+    public List<QuestionResponse> getAllQuestion(){
+        return questionOperations.getAll();
     }
 
-    private List<QuestionResponse> getListResponseFromQuestions(Collection<Question> questions){
-        return questions.stream()
-                .map(QuestionResponse::fromQuestion)
-                .collect(Collectors.toList());
-
+    @GetMapping("/{id}/answers")
+    @ResponseStatus(HttpStatus.OK)
+    public List<TrueAnswerResponse> getTrueAnswers(@PathVariable UUID id){
+        return questionOperations.getAllTrueAnswers(id);
     }
 }

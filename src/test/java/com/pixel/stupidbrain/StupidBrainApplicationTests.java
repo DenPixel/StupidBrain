@@ -9,5 +9,4 @@ class StupidBrainApplicationTests {
     @Test
     void contextLoads() {
     }
-
 }

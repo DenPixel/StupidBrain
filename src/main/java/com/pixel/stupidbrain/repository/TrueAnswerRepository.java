@@ -11,5 +11,5 @@ public interface TrueAnswerRepository extends JpaRepository<TrueAnswer, UUID> {
 
     List<TrueAnswer> findAllByQuestionEquals(Question question);
 
-    boolean existsByQuestionEqualsAndAnswer(Question question, String answer);
+    boolean existsByQuestionEqualsAndAnswerEquals(Question question, String answer);
 }
