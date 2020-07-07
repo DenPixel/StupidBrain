@@ -90,6 +90,6 @@ public class QuestionController {
             return getAll(model);
         }
 
-        return "redirect:/questions/" + questionResponse.getId();
+        return getQuestion(user, model, questionResponse.getId());
     }
 }
